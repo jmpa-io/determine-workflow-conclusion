@@ -12,6 +12,14 @@ jobs:
     secrets:
       github-token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
 
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Test latest version of action.
+      uses: ./
+      with:
+        token: ${{ secrets.ADMIN_GITHUB_TOKEN }}
+
   post-to-slack:
     needs: [lint]
     if: always()
