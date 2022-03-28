@@ -16,37 +16,30 @@
 
 basic usage:
 ```yaml
-- name: Notify Slack
-  uses: jmpa-oss/notify-slack@v0.0.1
-  with:
-    webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
-    status: ${{ job.status }}
-```
+  determine-conclusion:
+    runs-on: ubuntu-20.04
+    outputs:
+      conclusion: ${{ steps.determine.outputs.conclusion }}
+    steps:
+      - id: determine
+        uses: jmpa-io/determine-workflow-conclusion@v0.0.1
+        with:
+          token: ${{ secrets.github-token }}
 
-with if conditionals ([see doc](https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions#job-status-check-functions)):
-```yaml
-- name: Notify Slack
-  if: success() # accepts: success(), always(), cancelled(), failure()
-  uses: jmpa-oss/notify-slack@v0.0.1
-  with:
-    webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
-    status: ${{ job.status }}
+  do-something-else:
+    needs: [determine-conclusion]
+    runs-on: ubuntu-20.04
+    steps:
+      - run: |
+        echo "${{ needs.determine-conclusion.outputs.conclusion }}"
 ```
 
 ## Inputs
 
-### (required) `webhook`
+### (required) `token`
 
-The Slack webhook to post to. This is created / managed
-by a custom Slack App in your Slack workspace.
-
-### (required) `status`
-
-The status of the running GitHub Action job.
-
-## Webhook?
-
-* [To create the webhook used by this GitHub Action, follow the steps in this doc and create a custom Slack App for your Slack workspace.](https://api.slack.com/messaging/webhooks)
+A GitHub personal access token; used to determine
+the workflow conclusion via the GitHub API.
 
 ## Pushing new tag?
 
