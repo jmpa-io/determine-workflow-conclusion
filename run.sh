@@ -30,20 +30,29 @@ fi
 
 # vars.
 repo="${GITHUB_REPOSITORY}"
-[[ -z "$repo" ]] \
-  && die "missing \$GITHUB_REPOSITORY"
 id="${GITHUB_RUN_ID}"
-[[ -z "$id" ]] \
-  && die "missing \$GITHUB_RUN_ID"
+attempt="${GITHUB_RUN_ATTEMPT}"
+[[ -z "$repo" ]]    && die "missing \$GITHUB_REPOSITORY"
+[[ -z "$id" ]]      && die "missing \$GITHUB_RUN_ID"
+[[ -z "$attempt" ]] && die "missing \$GITHUB_RUN_ATTEMPT"
 
-# retrieve conclusion for running workflow.
-resp=$(curl -s "https://api.github.com/repos/$repo/actions/runs/$id" \
+# read jobs for workflow.
+resp=$(curl -s "https://api.github.com/repos/$repo/actions/runs/$id/attempts/$attempt/jobs" \
   -H "Accept: application/vnd.github.v3+json" \
   -H "Authorization: bearer $token") \
-  || die "failed curl to retrieve $repo $id conclusion"
-echo "$resp"
-conclusion=$(<<< "$resp" jq -r '.conclusion') \
-  || die "failed to parse response from retrieving $repo $id conclusion"
+  || die "failed curl to retrieve $repo $id jobs"
+conclusions=$(<<< "$resp" jq -r '.jobs[]
+  | select(.status == "completed")
+  | [.conclusion]
+  | @csv' | tr -d '"') \
+  || die "failed to parse response when retrieving $repo $id jobs"
+
+# determine conclusion from jobs.
+conclusion="success"
+for c in $conclusions; do
+  echo "--- $c"
+  [[ "$c" != "success" ]] && { conclusion="failure"; }
+done
 
 # print result.
 echo "##[group]Found conclusion for $repo $id"
