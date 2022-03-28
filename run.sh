@@ -37,17 +37,15 @@ id="${GITHUB_RUN_ID}"
   && die "missing \$GITHUB_RUN_ID"
 
 # retrieve conclusion for running workflow.
-echo "##[group]Retrieving conclusion for $repo $id"
 resp=$(curl -s "https://api.github.com/repos/$repo/actions/runs/$id" \
   -H "Accept: application/vnd.github.v3+json" \
   -H "Authorization: bearer $token") \
-  || die "failed curl to retrieve $repo workflow $id conclusion"
+  || die "failed curl to retrieve $repo $id conclusion"
 conclusion=$(<<< "$resp" jq -r '.conclusion') \
-  || die "failed to parse response from retrieving $repo workflow $id conclusion"
-echo "##[endgroup]"
+  || die "failed to parse response from retrieving $repo $id conclusion"
 
 # print result.
-echo "##[group]Result"
+echo "##[group]Found conclusion for $repo $id"
 echo "$conclusion"
 echo "##[endgroup]"
 echo "::set-output name=conclusion::$conclusion"
