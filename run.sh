@@ -42,7 +42,7 @@ resp=$(curl -s "https://api.github.com/repos/$repo/actions/runs/$id" \
   -H "Accept: application/vnd.github.v3+json" \
   -H "Authorization: bearer $token") \
   || die "failed curl to retrieve $repo workflow $id conclusion"
-conclusion=$(<<< jq -r '.conclusion') \
+conclusion=$(<<< "$resp" jq -r '.conclusion') \
   || die "failed to parse response from retrieving $repo workflow $id conclusion"
 echo "##[endgroup]"
 
