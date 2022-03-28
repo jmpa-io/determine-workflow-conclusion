@@ -1,0 +1,12 @@
+name: notify-slack
+description: |
+  A GitHub Action for determining the workflow conclusion for a running workflow.
+author: jmpa-io
+runs:
+  using: docker
+  image: Dockerfile
+inputs:
+  token:
+    description: |
+      A GitHub personal access token; used to determine the workflow conclusion via the GitHub API.
+    required: true
