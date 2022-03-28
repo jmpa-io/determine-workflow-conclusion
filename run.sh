@@ -47,9 +47,6 @@ conclusions=$(<<< "$resp" jq -r '.jobs[]
   | @csv' | tr -d '"') \
   || die "failed to parse response when retrieving $repo $id jobs"
 
-echo "---- $resp"
-echo "------- $conclusions"
-
 # determine conclusion from jobs.
 conclusion="success"
 for c in $conclusions; do
