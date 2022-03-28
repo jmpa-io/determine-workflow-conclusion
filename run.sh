@@ -41,6 +41,7 @@ resp=$(curl -s "https://api.github.com/repos/$repo/actions/runs/$id" \
   -H "Accept: application/vnd.github.v3+json" \
   -H "Authorization: bearer $token") \
   || die "failed curl to retrieve $repo $id conclusion"
+echo "$resp"
 conclusion=$(<<< "$resp" jq -r '.conclusion') \
   || die "failed to parse response from retrieving $repo $id conclusion"
 
