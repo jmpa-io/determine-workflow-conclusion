@@ -6,7 +6,7 @@
 
 ```diff
 + 🐋 A GitHub Action for determining the status of a workflow when run inside a
-+ pipeline. Largely used to post the status to Slack via
++ pipeline. Largely used to post workflow statuses to Slack via
 + https://github.com/jmpa-io/notify-slack.
 ```
 
