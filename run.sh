@@ -29,6 +29,7 @@ if [[ ${#missing[@]} -ne 0 ]]; then
 fi
 
 # vars.
+# https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
 repo="${GITHUB_REPOSITORY}"
 id="${GITHUB_RUN_ID}"
 attempt="${GITHUB_RUN_ATTEMPT}"
@@ -48,13 +49,23 @@ conclusions=$(<<< "$resp" jq -r '.jobs[]
   || die "failed to parse response when retrieving $repo $id jobs"
 
 # determine conclusion from jobs.
-conclusion="success"
+successes=0; skipped=0; failures=0;
 for c in $conclusions; do
-  [[ "$c" != "success" ]] && { conclusion="failure"; }
+  case "$c" in
+    success) ((successes++)) ;;
+    skipped) ((skipped++)) ;;
+    failure) ((failures++)) ;;
+  esac
 done
+conclusion="success"
+[[ $failures -gt 0 ]] && conclusion="failure"
 
 # print result.
 echo "##[group]Found conclusion for $repo $id"
-echo "$conclusion"
+echo "successes: $successes"
+echo "skipped: $skipped"
+echo "failures: $failures"
+echo "---"
+echo "conclusion: $conclusion"
 echo "##[endgroup]"
-echo "::set-output name=conclusion::$conclusion"
+echo "conclusion=$conclusion" >> "$GITHUB_OUTPUT"
