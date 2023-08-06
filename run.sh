@@ -49,22 +49,24 @@ conclusions=$(<<< "$resp" jq -r '.jobs[]
   || die "failed to parse response when retrieving $repo $id jobs"
 
 # determine conclusion from jobs.
-successes=0; skipped=0; failures=0;
+successes=0; failures=0; skipped=0; cancellations=0
 for c in $conclusions; do
   case "$c" in
     success) ((successes++)) ;;
-    skipped) ((skipped++)) ;;
     failure) ((failures++)) ;;
+    skipped) ((skipped++)) ;;
+    cancelled) ((cancellations++)) ;;
   esac
 done
-conclusion="success"
-[[ $failures -gt 0 ]] && conclusion="failure"
+conclusion="failure"
+[[ $failures -eq 0 ]] && conclusion="success"
 
 # print result.
 echo "##[group]Found conclusion for $repo $id"
 echo "successes: $successes"
-echo "skipped: $skipped"
 echo "failures: $failures"
+echo "skipped: $skipped"
+echo "cancellations: $cancellations"
 echo "---"
 echo "conclusion: $conclusion"
 echo "##[endgroup]"
