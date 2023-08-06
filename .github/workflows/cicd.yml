@@ -30,7 +30,8 @@ jobs:
     secrets: inherit
 
   test-action:
-    runs-on: ubuntu-20.04
+    needs: [lint, test]
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v3
