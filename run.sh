@@ -36,12 +36,16 @@ attempt="${GITHUB_RUN_ATTEMPT}"
 [[ -z "$repo" ]]    && die "missing \$GITHUB_REPOSITORY"
 [[ -z "$id" ]]      && die "missing \$GITHUB_RUN_ID"
 [[ -z "$attempt" ]] && die "missing \$GITHUB_RUN_ATTEMPT"
+echo "$repo"
+echo "$id"
+echo "$attempt"
 
 # read jobs for workflow.
 resp=$(curl -s "https://api.github.com/repos/$repo/actions/runs/$id/attempts/$attempt/jobs" \
   -H "Accept: application/vnd.github.v3+json" \
   -H "Authorization: bearer $token") \
   || die "failed curl to retrieve $repo $id jobs"
+echo "$resp"
 conclusions=$(<<< "$resp" jq -r '.jobs[]
   | select(.status == "completed")
   | [.conclusion]
