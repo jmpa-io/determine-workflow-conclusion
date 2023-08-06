@@ -45,8 +45,10 @@ resp=$(curl -s "https://api.github.com/repos/$repo/actions/runs/$id/attempts/$at
 conclusions=$(<<< "$resp" jq -r '.jobs[]
   | select(.status == "completed")
   | [.conclusion]
-  | @csv' | tr -d '"') \
+  | @csv') \
   || die "failed to parse response when retrieving $repo $id jobs"
+conclusions=$(<<< "$conclusions" tr -d '"') \
+  || die "failed to remove quotes from response when retrieving $repo $id jobs"
 
 # determine conclusion from jobs.
 successes=0; failures=0; skipped=0; cancellations=0
@@ -61,13 +63,23 @@ done
 conclusion="failure"
 [[ $failures -eq 0 ]] && conclusion="success"
 
-# print result.
-echo "##[group]Found conclusion for $repo $id"
+# print breakdown.
+echo "##[group]Breakdown of results for $repo $id"
 echo "successes: $successes"
 echo "failures: $failures"
 echo "skipped: $skipped"
 echo "cancellations: $cancellations"
-echo "---"
+echo "##[endgroup]"
+
+# fail early, on no conclusion
+[[ $successes -eq 0 && $failures -eq 0 &&
+  $skipped -eq 0 && $cancellations -eq 0 ]] \
+  && die "failed to determine conclusion; successes, failures, skipped, and cancellations are ALL zero"
+
+# print conclusion.
+echo "##[group]Conclusion for $repo $id"
 echo "conclusion: $conclusion"
 echo "##[endgroup]"
-echo "conclusion=$conclusion" >> "$GITHUB_OUTPUT"
+if [[ -n "$CI" ]]; then
+  echo "conclusion=$conclusion" >> "$GITHUB_OUTPUT"
+fi
