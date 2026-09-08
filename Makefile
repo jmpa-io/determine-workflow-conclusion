@@ -3,4 +3,4 @@ PROJECT = determine-workflow-conclusion
 ---: ## ---
 
 # include common targets.
-include Makefile.common.mk
+include $(shell while [[ ! -d .git ]]; do cd ..; done; pwd)/Makefile.common.mk
