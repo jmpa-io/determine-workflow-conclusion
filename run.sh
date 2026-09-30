@@ -41,7 +41,7 @@ echo "$id"
 echo "$attempt"
 
 # read jobs for workflow.
-resp=$(curl -s "https://api.github.com/repos/$repo/actions/runs/$id/attempts/$attempt/jobs" \
+resp=$(curl -sf "https://api.github.com/repos/$repo/actions/runs/$id/attempts/$attempt/jobs" \
   -H "Accept: application/vnd.github.v3+json" \
   -H "Authorization: bearer $token") \
   || die "failed curl to retrieve $repo $id jobs"
@@ -65,7 +65,13 @@ for c in $conclusions; do
   esac
 done
 conclusion="failure"
-[[ $failures -eq 0 ]] && conclusion="success"
+if [[ $failures -eq 0 ]]; then
+  if [[ $cancellations -gt 0 ]]; then
+    conclusion="cancelled"
+  else
+    conclusion="success"
+  fi
+fi
 
 # print breakdown.
 echo "##[group]Breakdown of results for $repo $id"
