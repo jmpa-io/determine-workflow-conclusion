@@ -1,7 +1,11 @@
-name: notify-slack
+name: determine-workflow-conclusion
 description: |
   A GitHub Action for determining the workflow conclusion for a running workflow.
 author: jmpa-io
+outputs:
+  conclusion:
+    description: |
+      The overall conclusion for the workflow run: 'success', 'failure', or 'cancelled'.
 runs:
   using: docker
   image: Dockerfile
