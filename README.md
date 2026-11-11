@@ -4,6 +4,10 @@
 
 # `determine-workflow-conclusion`
 
+> **Deprecated and archived.** The `99-post-to-slack` workflow in [`jmpa-io/pipelines`](https://github.com/jmpa-io/pipelines)
+> now works out the overall status itself, from `needs.*.result`: pass `with: needs: ${{ toJSON(needs) }}` to it instead.
+> Nothing uses this action any more, so don't add new references to it.
+
 ```diff
 + 🐋 A GitHub Action for determining the status of a workflow when run inside a
 + pipeline. Largely used to post workflow statuses to Slack via
